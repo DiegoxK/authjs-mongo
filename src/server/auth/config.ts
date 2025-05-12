@@ -2,7 +2,7 @@ import { type DefaultSession, type NextAuthConfig } from "next-auth";
 import DiscordProvider from "next-auth/providers/discord";
 
 import { MongoDBAdapter } from "@auth/mongodb-adapter";
-import { clientPromise } from "@/server/db";
+import client from "@/server/db";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -31,7 +31,7 @@ declare module "next-auth" {
  * @see https://next-auth.js.org/configuration/options
  */
 export const authConfig = {
-  adapter: MongoDBAdapter(clientPromise),
+  adapter: MongoDBAdapter(client),
   providers: [
     DiscordProvider,
     /**

@@ -45,11 +45,11 @@ export const authConfig = {
      */
   ],
   callbacks: {
-    session: ({ session, token }) => ({
+    session: ({ session, user }) => ({
       ...session,
       user: {
         ...session.user,
-        id: token.sub,
+        id: user.id,
       },
     }),
   },

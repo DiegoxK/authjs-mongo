@@ -10,6 +10,9 @@ const options = {
   },
 };
 
+// Define the database name to use consistently across the application
+export const DB_NAME = env.MONGODB_DATABASE_NAME;
+
 let client: MongoClient;
 if (env.NODE_ENV === "development") {
   // In development mode, use a global variable so that the value
@@ -25,7 +28,7 @@ if (env.NODE_ENV === "development") {
 }
 
 // Connect to the MongoDB database
-const db = client.db(env.MONGODB_DATABASE_NAME ?? "your-default-db-name");
+const db = client.db(DB_NAME);
 
 // Export the client for auth adapter
 export default client;

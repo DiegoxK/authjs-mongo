@@ -6,6 +6,10 @@ import {
   publicProcedure,
 } from "@/server/api/trpc";
 
+import { PostSchema } from "@/server/db/schema";
+
+type Post = z.infer<typeof PostSchema>;
+
 export const postRouter = createTRPCRouter({
   hello: publicProcedure
     .input(z.object({ text: z.string() }))
@@ -16,9 +20,9 @@ export const postRouter = createTRPCRouter({
     }),
 
   create: protectedProcedure
-    .input(z.object({ name: z.string().min(1) }))
+    .input(PostSchema.omit({ _id: true, createdAt: true, userId: true }))
     .mutation(async ({ ctx, input }) => {
-      const result = await ctx.db.collection("posts").insertOne({
+      const result = await ctx.db.collection<Post>("posts").insertOne({
         name: input.name,
         createdAt: new Date(),
         userId: ctx.session.user.id,
@@ -32,13 +36,25 @@ export const postRouter = createTRPCRouter({
 
   getLatest: protectedProcedure.query(async ({ ctx }) => {
     const post = await ctx.db
-      .collection("posts")
+      .collection<Post>("posts")
       .find({})
       .sort({ createdAt: -1 })
       .limit(1)
       .toArray();
 
-    return post[0] ?? null;
+    return {
+      name: post[0]?.name,
+    };
+  }),
+
+  getAllByUser: protectedProcedure.query(async ({ ctx }) => {
+    const posts = await ctx.db
+      .collection<Post>("posts")
+      .find({ userId: ctx.session.user.id })
+      .sort({ createdAt: -1 })
+      .toArray();
+
+    return posts;
   }),
 
   getSecretMessage: protectedProcedure.query(() => {
